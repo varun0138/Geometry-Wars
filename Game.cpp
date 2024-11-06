@@ -4,7 +4,8 @@
 #include <SFML/Window/Event.hpp>
 
 Game::Game() {
-    m_window.create(sf::VideoMode(1980, 1080), "", sf::Style::None);
+    m_window.create(sf::VideoMode(1680, 945), "", sf::Style::Close | sf::Style::Titlebar);
+    m_window.setPosition(sf::Vector2i(5, 5));
     m_window.setFramerateLimit(60);
 
     setUp();
@@ -20,7 +21,7 @@ void Game::run() {
         m_entityManager.update();
         sUserInput();
 
-        if(m_paused) {
+        if(!m_paused) {
             sMovement();
             sCollision();
             sLifeSpan();
@@ -36,11 +37,20 @@ void Game::sUserInput() {
         switch(event.type) {
             case sf::Event::Closed:
                 quit();
+                break;
 
             case sf::Event::KeyPressed:
-                if(event.key.code == sf::Keyboard::Escape) {
-                    quit();
-                }
+                if(event.key.code == sf::Keyboard::W)      { m_player->cInput->up   = true; }
+                else if(event.key.code == sf::Keyboard::S) { m_player->cInput->down = true; }
+                else if(event.key.code == sf::Keyboard::A) { m_player->cInput->left = true; }
+                else if(event.key.code == sf::Keyboard::D) { m_player->cInput->right = true; }
+                break;
+
+            case sf::Event::KeyReleased:
+                if(event.key.code == sf::Keyboard::W)      { m_player->cInput->up   = false; }
+                else if(event.key.code == sf::Keyboard::S) { m_player->cInput->down = false; }
+                else if(event.key.code == sf::Keyboard::A) { m_player->cInput->left = false; }
+                else if(event.key.code == sf::Keyboard::D) { m_player->cInput->right = false; }
                 break;
 
             default:
@@ -50,6 +60,13 @@ void Game::sUserInput() {
 }
 
 void Game::sMovement() {
+    m_player->cTransform->velocity = { 0.0f, 0.0f };
+
+    if(m_player->cInput->up)    { m_player->cTransform->velocity.y = -1 * PLAYER_SPEED; }
+    if(m_player->cInput->down)  { m_player->cTransform->velocity.y = PLAYER_SPEED; }
+    if(m_player->cInput->left)  { m_player->cTransform->velocity.x = -1 * PLAYER_SPEED; }
+    if(m_player->cInput->right) { m_player->cTransform->velocity.x = PLAYER_SPEED; }
+
     for(auto& entity: m_entityManager.getEntities()) {
         entity->cTransform->pos += entity->cTransform->velocity;
     }

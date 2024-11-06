@@ -16,6 +16,13 @@ private:
     Entity(unsigned int id, const std::string& tag);
 
 public:
+    std::shared_ptr<CTransform> cTransform;
+    std::shared_ptr<CShape> cShape;
+    std::shared_ptr<CCollision> cCollision;
+    std::shared_ptr<CInput> cInput;
+    std::shared_ptr<CScore> cScore;
+    std::shared_ptr<CLifeSpan> CLifeSpan;
+
     unsigned int id() const;
     std::string tag() const;
     bool isActive() const;

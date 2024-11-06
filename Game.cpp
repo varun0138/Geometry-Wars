@@ -2,7 +2,6 @@
 #include "Constants.hpp"
 
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
 
 Game::Game() {
     m_window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "", sf::Style::Close | sf::Style::Titlebar);
@@ -78,6 +77,19 @@ void Game::sMovement() {
 
 void Game::sCollision() {
 
+    if(m_player->cTransform->pos.x <= PLAYER_RADIUS) { m_player->cTransform->pos.x = PLAYER_RADIUS; }
+    if(m_player->cTransform->pos.x >= WINDOW_WIDTH - PLAYER_RADIUS) { m_player->cTransform->pos.x = WINDOW_WIDTH - PLAYER_RADIUS; } 
+    if(m_player->cTransform->pos.y <= PLAYER_RADIUS) { m_player->cTransform->pos.y = PLAYER_RADIUS; }
+    if(m_player->cTransform->pos.y >= WINDOW_HEIGHT - PLAYER_RADIUS) { m_player->cTransform->pos.y = WINDOW_HEIGHT - PLAYER_RADIUS; }
+
+    for(auto& enemy: m_entityManager.getEntities("Enemy")) {
+        if(enemy->cTransform->pos.x <= enemy->cShape->circle.getRadius() || enemy->cTransform->pos.x >= WINDOW_WIDTH - enemy->cShape->circle.getRadius()) {
+            enemy->cTransform->velocity.x *= -1;
+        }
+        if(enemy->cTransform->pos.y <= enemy->cShape->circle.getRadius() || enemy->cTransform->pos.y >= WINDOW_HEIGHT - enemy->cShape->circle.getRadius()) {
+            enemy->cTransform->velocity.y *= -1;
+        }
+    }
 }
 
 void Game::sLifeSpan() {
@@ -115,9 +127,9 @@ void Game::spawnEnemy() {
 
     const sf::FloatRect bounds = { m_player->cTransform->pos.x - PLAYER_RADIUS * 6, m_player->cTransform->pos.y - PLAYER_RADIUS * 6, PLAYER_RADIUS * 12, PLAYER_RADIUS * 12 };
 
-    sf::Vector2f pos = { m_random.randrange(radius, WINDOW_WIDTH - radius, radius * 4), m_random.randrange(radius, WINDOW_HEIGHT - radius, radius * 4) };
+    sf::Vector2f pos = { m_random.randrange(radius * 4, WINDOW_WIDTH - (radius * 4), radius * 4), m_random.randrange(radius * 4, WINDOW_HEIGHT - (radius * 4), radius * 4) };
     while(bounds.contains(pos)) {
-        pos = { m_random.randrange(radius, WINDOW_WIDTH - radius, radius * 4), m_random.randrange(radius, WINDOW_HEIGHT - radius, radius * 4) };
+        pos = { m_random.randrange(radius * 4, WINDOW_WIDTH - (radius * 4), radius * 4), m_random.randrange(radius * 4, WINDOW_HEIGHT - (radius * 4), radius * 4) };
     }
 
     const sf::Vector2f velocity = { m_random.randfloat(ENEMY_MIN_SPEED, ENEMY_MAX_SPEED),  m_random.randfloat(ENEMY_MIN_SPEED, ENEMY_MAX_SPEED) };

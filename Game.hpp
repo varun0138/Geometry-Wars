@@ -4,12 +4,14 @@
 #include <memory>
 
 #include "EntityManager.hpp"
+#include "Random.hpp"
 
 class Game {
 private:
     sf::RenderWindow m_window;
     sf::Clock m_clock;
 
+    Random m_random;
     EntityManager m_entityManager;
 
     std::shared_ptr<Entity> m_player;

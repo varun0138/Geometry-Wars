@@ -5,10 +5,10 @@
 This game is a simplified Geometry Wars-inspired shooter where the player battles enemies in a confined space. The player can move, shoot, and use a special ability while facing off against multiple enemy types. The game is controlled using keyboard and mouse input, with an option to pause gameplay.
 
 ## Game Controls
-**Movement**: WASD for player movement
-**Fire Weapon**: Left mouse button
-**Special Ability**: Right mouse button - Fires a unique weapon
-**Pause**: P key
+- **Movement**: WASD for player movement
+- **Fire Weapon**: Left mouse button
+- **Special Ability**: Right mouse button - Fires a unique weapon
+- **Pause**: P key
 
 ## Building the Project
 **Note**: These instructions are specifically for Windows. For other platforms, adjust the paths and compilation steps accordingly.

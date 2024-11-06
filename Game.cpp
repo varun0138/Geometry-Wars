@@ -2,9 +2,10 @@
 #include "Constants.hpp"
 
 #include <SFML/Window/Event.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 
 Game::Game() {
-    m_window.create(sf::VideoMode(1680, 945), "", sf::Style::Close | sf::Style::Titlebar);
+    m_window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "", sf::Style::Close | sf::Style::Titlebar);
     m_window.setPosition(sf::Vector2i(5, 5));
     m_window.setFramerateLimit(60);
 
@@ -22,9 +23,12 @@ void Game::run() {
         sUserInput();
 
         if(!m_paused) {
+            enemySpawner();
             sMovement();
             sCollision();
             sLifeSpan();
+
+            m_currentFrame++;
         }
         
         sRender();
@@ -105,7 +109,23 @@ void Game::spawnPlayer() {
 }
 
 void Game::spawnEnemy() {
+    const float radius = m_random.randint(ENEMY_MIN_RADIUS, ENEMY_MAX_RADIUS);
+    const unsigned int vertices = m_random.randint(ENEMY_MIN_VERTICES, ENEMY_MAX_VERTICES);
+    const sf::Color color = { (sf::Uint8)m_random.randint(100, 250), (sf::Uint8)m_random.randint(100, 250), (sf::Uint8)m_random.randint(100, 250) };
 
+    const sf::FloatRect bounds = { m_player->cTransform->pos.x - PLAYER_RADIUS * 6, m_player->cTransform->pos.y - PLAYER_RADIUS * 6, PLAYER_RADIUS * 12, PLAYER_RADIUS * 12 };
+
+    sf::Vector2f pos = { m_random.randrange(radius, WINDOW_WIDTH - radius, radius * 4), m_random.randrange(radius, WINDOW_HEIGHT - radius, radius * 4) };
+    while(bounds.contains(pos)) {
+        pos = { m_random.randrange(radius, WINDOW_WIDTH - radius, radius * 4), m_random.randrange(radius, WINDOW_HEIGHT - radius, radius * 4) };
+    }
+
+    const sf::Vector2f velocity = { m_random.randfloat(ENEMY_MIN_SPEED, ENEMY_MAX_SPEED),  m_random.randfloat(ENEMY_MIN_SPEED, ENEMY_MAX_SPEED) };
+
+    auto enemy = m_entityManager.addEntity("Enemy");
+    enemy->cTransform = std::make_shared<CTransform>(pos, velocity, 0.0f);
+    enemy->cShape = std::make_shared<CShape>(radius, vertices, color, ENEMY_OUTLINE_COLOR, ENEMY_OUTLINE_THICKNESS);
+    enemy->cCollision = std::make_shared<CCollision>(radius);
 }
 
 void Game::spawnSmallerEnemies(std::shared_ptr<Entity> entity) {
@@ -113,7 +133,10 @@ void Game::spawnSmallerEnemies(std::shared_ptr<Entity> entity) {
 }
 
 void Game::enemySpawner() {
-
+    if(m_currentFrame - m_lastEnemySpawnTime == ENEMY_SPAWN_INTERVAL) {
+        spawnEnemy();
+        m_lastEnemySpawnTime = m_currentFrame;
+    }
 }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& mousePos) {

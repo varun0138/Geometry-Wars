@@ -2,6 +2,9 @@
 
 #include <SFML/Graphics/Color.hpp>
 
+const unsigned int WINDOW_WIDTH = 1680;
+const unsigned int WINDOW_HEIGHT = 945;
+
 const unsigned int PLAYER_VERTICES = 8;
 const float PLAYER_RADIUS = 32.0f;
 const float PLAYER_SPEED = 5.0f;
@@ -18,6 +21,7 @@ const float ENEMY_MIN_SPEED = 1;
 const float ENEMY_MAX_SPEED = 5;
 const float ENEMY_OUTLINE_THICKNESS = 2;
 const float SMALLER_ENEMY_LIFESPAN = 60;
+const sf::Color ENEMY_OUTLINE_COLOR = {255, 255, 255};
 
 const unsigned int BULLET_VERTICES = 20;
 const unsigned int BULLET_LIFEPSAN = 90;

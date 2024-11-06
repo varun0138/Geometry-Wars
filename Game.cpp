@@ -8,7 +8,8 @@ Game::Game() {
 
 void Game::run() {
     while(m_running) {
-
+        
+        m_entityManager.update();
         sUserInput();
 
         if(m_paused) {
@@ -39,12 +40,22 @@ void Game::sUserInput() {
 }
 
 void Game::sMovement() {
-
+    for(auto& entity: m_entityManager.getEntities()) {
+        entity->cTransform->pos += entity->cTransform->velocity;
+    }
 }
 
 void Game::sRender() {
     m_window.clear();
 
+    for(auto& entity: m_entityManager.getEntities()) {
+        entity->cShape->circle.setPosition(entity->cTransform->pos);
+
+        entity->cTransform->angle += 1.0f;
+        entity->cShape->circle.setRotation(entity->cTransform->angle);
+
+        m_window.draw(entity->cShape->circle);
+    }
 
     m_window.display();
 }

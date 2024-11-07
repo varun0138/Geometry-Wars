@@ -24,7 +24,7 @@ const float SMALLER_ENEMY_LIFESPAN = 60;
 const sf::Color ENEMY_OUTLINE_COLOR = {255, 255, 255};
 
 const unsigned int BULLET_VERTICES = 20;
-const unsigned int BULLET_LIFEPSAN = 90;
+const unsigned int BULLET_LIFESPAN = 90;
 const float BULLET_RADIUS = 6;
 const float BULLET_SPEED = 20;
 const float BULLET_OUTLINE_THICKNESS = 3;

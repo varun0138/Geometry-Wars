@@ -21,7 +21,7 @@ public:
     std::shared_ptr<CCollision> cCollision;
     std::shared_ptr<CInput> cInput;
     std::shared_ptr<CScore> cScore;
-    std::shared_ptr<CLifeSpan> CLifeSpan;
+    std::shared_ptr<CLifeSpan> cLifeSpan;
 
     unsigned int id() const;
     std::string tag() const;

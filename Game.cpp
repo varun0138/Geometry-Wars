@@ -3,6 +3,7 @@
 
 #include <SFML/Window/Event.hpp>
 #include <cmath>
+#include <iostream>
 
 Game::Game() {
     m_window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "", sf::Style::Close | sf::Style::Titlebar);
@@ -106,7 +107,28 @@ void Game::sCollision() {
 }
 
 void Game::sLifeSpan() {
+    for(auto& entity: m_entityManager.getEntities()) {
+        if(entity->cLifeSpan) {
+            
+            if(entity->cLifeSpan->remaining == 0) {
+                entity->destroy();
+                continue;
+            }
 
+            entity->cLifeSpan->remaining--;
+
+            float ratio = (float)entity->cLifeSpan->remaining / entity->cLifeSpan->total;
+
+            sf::Color fill = entity->cShape->circle.getFillColor();
+            sf::Color outline = entity->cShape->circle.getOutlineColor();
+
+            fill.a = ratio * fill.a;
+            outline.a = ratio * outline.a;
+
+            entity->cShape->circle.setFillColor(fill);
+            entity->cShape->circle.setOutlineColor(outline);
+        }
+    }
 }
 
 void Game::sRender() {
@@ -175,6 +197,7 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& targe
     bullet->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
     bullet->cShape = std::make_shared<CShape>(BULLET_RADIUS, BULLET_VERTICES, BULLET_FILL_COLOR, BULLET_OUTLINE_COLOR, BULLET_OUTLINE_THICKNESS);
     bullet->cCollision = std::make_shared<CCollision>(BULLET_RADIUS);
+    bullet->cLifeSpan = std::make_shared<CLifeSpan>(BULLET_LIFESPAN);
 }
 
 void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity) {

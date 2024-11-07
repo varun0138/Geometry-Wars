@@ -62,3 +62,11 @@ public:
     CLifeSpan(unsigned int t)
         : total(t), remaining(t) {}
 };
+
+class CType {
+public:
+    std::string type = "None";
+
+    CType(const std::string& t)
+        : type(t) {}
+};

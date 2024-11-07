@@ -62,6 +62,9 @@ void Game::sUserInput() {
                 if(event.mouseButton.button == sf::Mouse::Left) {
                     m_player->cInput->shoot = true;
                 }
+                else if(event.mouseButton.button == sf::Mouse::Right) {
+                    spawnSpecialWeapon(m_player);
+                }
                 break;
 
             default:
@@ -82,6 +85,18 @@ void Game::sMovement() {
         sf::Vector2f mousePos = (sf::Vector2f)sf::Mouse::getPosition(m_window);
         spawnBullet(m_player, mousePos);
         m_player->cInput->shoot = false;
+    }
+
+    for(auto& enemy: m_entityManager.getEntities("Enemy")) {
+        if(enemy->cType) {
+            if(enemy->cType->type == "Tracker") {
+                sf::Vector2f velocity = m_player->cTransform->pos - enemy->cTransform->pos;
+                float mag = std::sqrt(std::pow(velocity.x, 2) + std::pow(velocity.y, 2));
+                velocity = { velocity.x / mag, velocity.y / mag };
+                velocity *= ENEMY_MAX_SPEED;
+                enemy->cTransform->velocity = velocity;
+            }
+        }
     }
 
     for(auto& entity: m_entityManager.getEntities()) {
@@ -125,6 +140,7 @@ void Game::sCollision() {
             float radii = bullet->cShape->circle.getRadius() + enemy->cShape->circle.getRadius();
             float distance = std::sqrt(std::pow(bullet->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(bullet->cTransform->pos.y - enemy->cTransform->pos.y, 2));
             if(distance <= radii) {
+                spawnSmallerEnemies(enemy);
                 enemy->destroy();
                 bullet->destroy();
             }
@@ -199,10 +215,27 @@ void Game::spawnEnemy() {
     enemy->cTransform = std::make_shared<CTransform>(pos, velocity, 0.0f);
     enemy->cShape = std::make_shared<CShape>(radius, vertices, color, ENEMY_OUTLINE_COLOR, ENEMY_OUTLINE_THICKNESS);
     enemy->cCollision = std::make_shared<CCollision>(radius);
+
+    if(vertices <= 4) { enemy->cType = std::make_shared<CType>("Tracker"); }
 }
 
 void Game::spawnSmallerEnemies(std::shared_ptr<Entity> entity) {
+    const float angle = 360 / entity->cShape->circle.getPointCount();
 
+    for(unsigned int i = 0; i < entity->cShape->circle.getPointCount(); i++) {
+        auto smallerEnemy = m_entityManager.addEntity("smallEnemy");
+
+        const float speed = std::sqrt(std::pow(entity->cTransform->velocity.x, 2) + std::pow(entity->cTransform->velocity.y, 2));
+        const float angleRad = angle * (3.14159265 / 180.0);
+
+        sf::Vector2f vel = {speed * std::cos(angleRad * i), speed * std::sin(angleRad * i)};
+
+        smallerEnemy->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0.0f);
+
+        smallerEnemy->cShape = std::make_shared<CShape>(entity->cShape->circle.getRadius() / 2.0f, entity->cShape->circle.getPointCount(), entity->cShape->circle.getFillColor(), entity->cShape->circle.getOutlineColor(), entity->cShape->circle.getOutlineThickness());
+
+        smallerEnemy->cLifeSpan = std::make_shared<CLifeSpan>(SMALLER_ENEMY_LIFESPAN);
+    }
 }
 
 void Game::enemySpawner() {
@@ -227,7 +260,20 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& targe
 }
 
 void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity) {
+    const int points = 15;
+    const float angle = 360 / points;
+    for(int i = 0; i < points; i++) {
+        auto bullet = m_entityManager.addEntity("Bullet");
 
+        const float speed = BULLET_SPEED;
+        const float angleRad = angle * (3.14159265 / 180.0);
+
+        sf::Vector2f vel = {speed * std::cos(angleRad * i), speed * std::sin(angleRad * i)};
+
+        bullet->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0.0f);
+        bullet->cShape = std::make_shared<CShape>(BULLET_RADIUS * 1.5f, BULLET_VERTICES, sf::Color(255, 0, 255), BULLET_OUTLINE_COLOR, BULLET_OUTLINE_THICKNESS);
+        bullet->cLifeSpan = std::make_shared<CLifeSpan>(BULLET_LIFESPAN * 5);
+    }
 }
 
 void Game::setPaused(bool paused) {

@@ -40,6 +40,7 @@ private:
     void spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& target);
     void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
     void spawnGlyph(std::shared_ptr<Entity> entity);
+    void spawnParticles(std::shared_ptr<Entity> entity);
 
     void setPaused(bool paused);
     void quit();

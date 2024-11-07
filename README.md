@@ -14,7 +14,7 @@ This game is a simplified Geometry Wars-inspired shooter where the player battle
 
 Here’s a quick preview of the game:
 
-![Game](gifs/demo.gif)
+![Game](gifs/demo2.gif)
 
 ## Building the Project
 **Note**: These instructions are specifically for Windows. For other platforms, adjust the paths and compilation steps accordingly.

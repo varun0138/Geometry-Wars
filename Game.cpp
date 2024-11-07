@@ -81,10 +81,10 @@ void Game::sUserInput() {
 void Game::sMovement() {
     m_player->cTransform->velocity = { 0.0f, 0.0f };
 
-    if(m_player->cInput->up)    { m_player->cTransform->velocity.y = -1 * PLAYER_SPEED; }
-    if(m_player->cInput->down)  { m_player->cTransform->velocity.y = PLAYER_SPEED; }
-    if(m_player->cInput->left)  { m_player->cTransform->velocity.x = -1 * PLAYER_SPEED; }
-    if(m_player->cInput->right) { m_player->cTransform->velocity.x = PLAYER_SPEED; }
+    if(m_player->cInput->up)    { m_player->cTransform->velocity.y = -1 * PLAYER_SPEED; spawnParticles(m_player);}
+    if(m_player->cInput->down)  { m_player->cTransform->velocity.y = PLAYER_SPEED; spawnParticles(m_player); }
+    if(m_player->cInput->left)  { m_player->cTransform->velocity.x = -1 * PLAYER_SPEED; spawnParticles(m_player); }
+    if(m_player->cInput->right) { m_player->cTransform->velocity.x = PLAYER_SPEED; spawnParticles(m_player); }
 
     if(m_player->cInput->shoot) {
         sf::Vector2f mousePos = (sf::Vector2f)sf::Mouse::getPosition(m_window);
@@ -191,7 +191,7 @@ void Game::sLifeSpan() {
 void Game::sRender() {
     m_window.clear();
 
-    for(auto& entity: m_entityManager.getEntities()) {
+    for(auto& entity: m_entityManager.getEntities("Particle")) {
         if(entity->cTransform && entity->cShape) {
             entity->cShape->circle.setPosition(entity->cTransform->pos);
 
@@ -200,7 +200,42 @@ void Game::sRender() {
 
             m_window.draw(entity->cShape->circle);
         }
+    }
 
+    for(auto& entity: m_entityManager.getEntities("Enemy")) {
+        if(entity->cTransform && entity->cShape) {
+            entity->cShape->circle.setPosition(entity->cTransform->pos);
+
+            entity->cTransform->angle += 1.0f;
+            entity->cShape->circle.setRotation(entity->cTransform->angle);
+
+            m_window.draw(entity->cShape->circle);
+        }
+    }
+
+    for(auto& entity: m_entityManager.getEntities("Player")) {
+        if(entity->cTransform && entity->cShape) {
+            entity->cShape->circle.setPosition(entity->cTransform->pos);
+
+            entity->cTransform->angle += 1.0f;
+            entity->cShape->circle.setRotation(entity->cTransform->angle);
+
+            m_window.draw(entity->cShape->circle);
+        }
+    }
+
+    for(auto& entity: m_entityManager.getEntities("Bullet")) {
+        if(entity->cTransform && entity->cShape) {
+            entity->cShape->circle.setPosition(entity->cTransform->pos);
+
+            entity->cTransform->angle += 1.0f;
+            entity->cShape->circle.setRotation(entity->cTransform->angle);
+
+            m_window.draw(entity->cShape->circle);
+        }
+    }
+
+    for(auto& entity: m_entityManager.getEntities("Glyph")) {
         if(entity->cGlyph) {
             entity->cGlyph->text.setPosition(entity->cTransform->pos);
 
@@ -212,7 +247,7 @@ void Game::sRender() {
 }
 
 void Game::spawnScore() {
-    m_score = m_entityManager.addEntity("Score Glyph"); 
+    m_score = m_entityManager.addEntity("Glyph"); 
 
     m_score->cTransform = std::make_shared<CTransform>(sf::Vector2f(5.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
     m_score->cScore = std::make_shared<CScore>(0);
@@ -307,12 +342,27 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity) {
 void Game::spawnGlyph(std::shared_ptr<Entity> entity) {
     if(entity->cTransform && entity->cShape) {
         auto glyph = m_entityManager.addEntity("Glyph"); 
+        
+        sf::Vector2f velocity = { entity->cTransform->velocity.x / entity->cTransform->velocity.x, entity->cTransform->velocity.y / entity->cTransform->velocity.y };
 
-        glyph->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, entity->cTransform->velocity, 0.0f);
+        glyph->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
     
         glyph->cGlyph = std::make_shared<CGlyph>(m_font, std::to_string(entity->cShape->circle.getPointCount()), entity->cShape->radius, entity->cShape->circle.getFillColor());
 
         glyph->cLifeSpan = std::make_shared<CLifeSpan>(SMALLER_ENEMY_LIFESPAN * 2);
+    }
+}
+
+void Game::spawnParticles(std::shared_ptr<Entity> entity) {
+    
+    for(unsigned int i = 0; i < 50; i++) {
+        auto particle = m_entityManager.addEntity("Particle");
+
+        const sf::Vector2f velocity = { m_random.randfloat(0, 2) * 3 - 2,  m_random.randfloat(0, 2) * 3 - 2 };
+
+        particle->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
+        particle->cShape = std::make_shared<CShape>(entity->cShape->radius * 0.05f, entity->cShape->circle.getPointCount(), sf::Color::Red, sf::Color::Red, 0.0f);
+        particle->cLifeSpan = std::make_shared<CLifeSpan>(30 + m_random.randint(10, 20));
     }
 }
 

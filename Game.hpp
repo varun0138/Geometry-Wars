@@ -34,7 +34,7 @@ private:
     void spawnEnemy();
     void spawnSmallerEnemies(std::shared_ptr<Entity> entity);
     void enemySpawner();
-    void spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& mousePos);
+    void spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& target);
     void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
 
     void setPaused(bool paused);

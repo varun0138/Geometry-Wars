@@ -25,8 +25,8 @@ const sf::Color ENEMY_OUTLINE_COLOR = {255, 255, 255};
 
 const unsigned int BULLET_VERTICES = 20;
 const unsigned int BULLET_LIFEPSAN = 90;
-const float BULLET_RADIUS = 7;
+const float BULLET_RADIUS = 6;
 const float BULLET_SPEED = 20;
-const float BULLET_OUTLINE_THICKNESS = 5;
-const sf::Color BULLET_FILL_COLOR = {200, 200, 200};
+const float BULLET_OUTLINE_THICKNESS = 3;
+const sf::Color BULLET_FILL_COLOR = {225, 225, 225};
 const sf::Color BULLET_OUTLINE_COLOR = {255, 255, 255};

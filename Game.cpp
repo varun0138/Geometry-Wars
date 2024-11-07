@@ -2,6 +2,7 @@
 #include "Constants.hpp"
 
 #include <SFML/Window/Event.hpp>
+#include <cmath>
 
 Game::Game() {
     m_window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "", sf::Style::Close | sf::Style::Titlebar);
@@ -56,6 +57,12 @@ void Game::sUserInput() {
                 else if(event.key.code == sf::Keyboard::D) { m_player->cInput->right = false; }
                 break;
 
+            case sf::Event::MouseButtonPressed:
+                if(event.mouseButton.button == sf::Mouse::Left) {
+                    m_player->cInput->shoot = true;
+                }
+                break;
+
             default:
                 break;
         }
@@ -69,6 +76,12 @@ void Game::sMovement() {
     if(m_player->cInput->down)  { m_player->cTransform->velocity.y = PLAYER_SPEED; }
     if(m_player->cInput->left)  { m_player->cTransform->velocity.x = -1 * PLAYER_SPEED; }
     if(m_player->cInput->right) { m_player->cTransform->velocity.x = PLAYER_SPEED; }
+
+    if(m_player->cInput->shoot) {
+        sf::Vector2f mousePos = (sf::Vector2f)sf::Mouse::getPosition(m_window);
+        spawnBullet(m_player, mousePos);
+        m_player->cInput->shoot = false;
+    }
 
     for(auto& entity: m_entityManager.getEntities()) {
         entity->cTransform->pos += entity->cTransform->velocity;
@@ -151,8 +164,17 @@ void Game::enemySpawner() {
     }
 }
 
-void Game::spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& mousePos) {
+void Game::spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& target) {
+    auto bullet = m_entityManager.addEntity("Bullet");
 
+    sf::Vector2f velocity = target - entity->cTransform->pos;
+    float mag = std::sqrt(std::pow(velocity.x, 2) + std::pow(velocity.y, 2));
+    velocity = { velocity.x / mag, velocity.y / mag };
+    velocity *= BULLET_SPEED;
+
+    bullet->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
+    bullet->cShape = std::make_shared<CShape>(BULLET_RADIUS, BULLET_VERTICES, BULLET_FILL_COLOR, BULLET_OUTLINE_COLOR, BULLET_OUTLINE_THICKNESS);
+    bullet->cCollision = std::make_shared<CCollision>(BULLET_RADIUS);
 }
 
 void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity) {

@@ -7,8 +7,12 @@
 
 Game::Game() {
     m_window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "", sf::Style::Close | sf::Style::Titlebar);
-    m_window.setPosition(sf::Vector2i(5, 5));
+    m_window.setPosition(sf::Vector2i(100, 5));
     m_window.setFramerateLimit(60);
+
+    if(!m_font.loadFromFile("./fonts/Retron2000.ttf")) {
+        std::cerr << "Error loading font file!!" << std::endl;
+    }
 
     setUp();
 }
@@ -141,6 +145,7 @@ void Game::sCollision() {
             float distance = std::sqrt(std::pow(bullet->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(bullet->cTransform->pos.y - enemy->cTransform->pos.y, 2));
             if(distance <= radii) {
                 spawnSmallerEnemies(enemy);
+                spawnGlyph(enemy);
                 enemy->destroy();
                 bullet->destroy();
             }
@@ -160,13 +165,22 @@ void Game::sLifeSpan() {
 
             entity->cLifeSpan->remaining--;
 
-            sf::Color fillColor = entity->cShape->circle.getFillColor();
-            fillColor.a = 255 * ratio;
-            entity->cShape->circle.setFillColor(fillColor);
+            if(entity->cShape) {
+                sf::Color fillColor = entity->cShape->circle.getFillColor();
+                fillColor.a = 255 * ratio;
+                entity->cShape->circle.setFillColor(fillColor);
 
-            sf::Color outlineColor = entity->cShape->circle.getFillColor();
-            outlineColor.a = 255 * ratio;
-            entity->cShape->circle.setOutlineColor(outlineColor);
+                sf::Color outlineColor = entity->cShape->circle.getFillColor();
+                outlineColor.a = 255 * ratio;
+                entity->cShape->circle.setOutlineColor(outlineColor);
+            }
+            
+            if(entity->cGlyph) {
+                sf::Color fillColor = entity->cGlyph->text.getFillColor();
+                fillColor.a = 255 * ratio;
+                entity->cGlyph->text.setFillColor(fillColor);
+            }
+            
         }
     }
 }
@@ -182,6 +196,12 @@ void Game::sRender() {
             entity->cShape->circle.setRotation(entity->cTransform->angle);
 
             m_window.draw(entity->cShape->circle);
+        }
+
+        if(entity->cGlyph) {
+            entity->cGlyph->text.setPosition(entity->cTransform->pos);
+
+            m_window.draw(entity->cGlyph->text);
         }
     }
 
@@ -273,6 +293,18 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity) {
         bullet->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0.0f);
         bullet->cShape = std::make_shared<CShape>(BULLET_RADIUS * 1.5f, BULLET_VERTICES, sf::Color(255, 0, 255), BULLET_OUTLINE_COLOR, BULLET_OUTLINE_THICKNESS);
         bullet->cLifeSpan = std::make_shared<CLifeSpan>(BULLET_LIFESPAN * 5);
+    }
+}
+
+void Game::spawnGlyph(std::shared_ptr<Entity> entity) {
+    if(entity->cTransform && entity->cShape) {
+        auto glyph = m_entityManager.addEntity("Glyph"); 
+
+        glyph->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, entity->cTransform->velocity, 0.0f);
+    
+        glyph->cGlyph = std::make_shared<CGlyph>(m_font, std::to_string(entity->cShape->circle.getPointCount()), entity->cShape->circle.getRadius(), entity->cShape->circle.getFillColor());
+
+        glyph->cLifeSpan = std::make_shared<CLifeSpan>(SMALLER_ENEMY_LIFESPAN * 2);
     }
 }
 

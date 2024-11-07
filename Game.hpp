@@ -10,6 +10,7 @@ class Game {
 private:
     sf::RenderWindow m_window;
     sf::Clock m_clock;
+    sf::Font m_font;
 
     Random m_random;
     EntityManager m_entityManager;
@@ -36,6 +37,7 @@ private:
     void enemySpawner();
     void spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& target);
     void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
+    void spawnGlyph(std::shared_ptr<Entity> entity);
 
     void setPaused(bool paused);
     void quit();

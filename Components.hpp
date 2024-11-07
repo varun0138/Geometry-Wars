@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
 
 class CTransform {
 public:
@@ -69,4 +71,16 @@ public:
 
     CType(const std::string& t)
         : type(t) {}
+};
+
+class CGlyph {
+public:
+    sf::Text text;
+
+    CGlyph(const sf::Font& font, const std::string& caption, float size, const sf::Color& color) {
+        text.setFont(font);
+        text.setString(caption);
+        text.setCharacterSize(size);
+        text.setFillColor(color);
+    }
 };

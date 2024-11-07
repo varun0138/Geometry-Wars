@@ -23,6 +23,7 @@ public:
     std::shared_ptr<CScore> cScore;
     std::shared_ptr<CLifeSpan> cLifeSpan;
     std::shared_ptr<CType> cType;
+    std::shared_ptr<CGlyph> cGlyph;
 
     unsigned int id() const;
     std::string tag() const;

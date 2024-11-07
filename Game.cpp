@@ -85,17 +85,21 @@ void Game::sMovement() {
     }
 
     for(auto& entity: m_entityManager.getEntities()) {
-        entity->cTransform->pos += entity->cTransform->velocity;
+        if(entity->cTransform) {
+            entity->cTransform->pos += entity->cTransform->velocity;
+        }
     }
 }
 
 void Game::sCollision() {
 
+    // PLAYER BOUNDARY
     if(m_player->cTransform->pos.x <= PLAYER_RADIUS) { m_player->cTransform->pos.x = PLAYER_RADIUS; }
     if(m_player->cTransform->pos.x >= WINDOW_WIDTH - PLAYER_RADIUS) { m_player->cTransform->pos.x = WINDOW_WIDTH - PLAYER_RADIUS; } 
     if(m_player->cTransform->pos.y <= PLAYER_RADIUS) { m_player->cTransform->pos.y = PLAYER_RADIUS; }
     if(m_player->cTransform->pos.y >= WINDOW_HEIGHT - PLAYER_RADIUS) { m_player->cTransform->pos.y = WINDOW_HEIGHT - PLAYER_RADIUS; }
 
+    // ENEMY BOUNDARY
     for(auto& enemy: m_entityManager.getEntities("Enemy")) {
         if(enemy->cTransform->pos.x <= enemy->cShape->circle.getRadius() || enemy->cTransform->pos.x >= WINDOW_WIDTH - enemy->cShape->circle.getRadius()) {
             enemy->cTransform->velocity.x *= -1;
@@ -104,29 +108,49 @@ void Game::sCollision() {
             enemy->cTransform->velocity.y *= -1;
         }
     }
+
+    // PLAYER ENEMY
+    for(auto& enemy: m_entityManager.getEntities("Enemy")) {
+        float radii = m_player->cShape->circle.getRadius() + enemy->cShape->circle.getRadius();
+        float distance = std::sqrt(std::pow(m_player->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(m_player->cTransform->pos.y - enemy->cTransform->pos.y, 2));
+        if(distance <= radii) {
+            enemy->destroy();
+            quit();
+        }
+    }
+
+    // BULLET ENEMY
+    for(auto& enemy: m_entityManager.getEntities("Enemy")) {
+        for(auto& bullet: m_entityManager.getEntities("Bullet")) {
+            float radii = bullet->cShape->circle.getRadius() + enemy->cShape->circle.getRadius();
+            float distance = std::sqrt(std::pow(bullet->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(bullet->cTransform->pos.y - enemy->cTransform->pos.y, 2));
+            if(distance <= radii) {
+                enemy->destroy();
+                bullet->destroy();
+            }
+        }
+    }
 }
 
 void Game::sLifeSpan() {
-    for(auto& entity: m_entityManager.getEntities()) {
+    for(auto entity: m_entityManager.getEntities()) {
         if(entity->cLifeSpan) {
-            
-            if(entity->cLifeSpan->remaining == 0) {
+            float ratio = ((float)entity->cLifeSpan->remaining / (float)entity->cLifeSpan->total);
+
+            if(entity->cLifeSpan->remaining <= 0 || ratio < 0.4) {
                 entity->destroy();
                 continue;
             }
 
             entity->cLifeSpan->remaining--;
 
-            float ratio = (float)entity->cLifeSpan->remaining / entity->cLifeSpan->total;
+            sf::Color fillColor = entity->cShape->circle.getFillColor();
+            fillColor.a = 255 * ratio;
+            entity->cShape->circle.setFillColor(fillColor);
 
-            sf::Color fill = entity->cShape->circle.getFillColor();
-            sf::Color outline = entity->cShape->circle.getOutlineColor();
-
-            fill.a = ratio * fill.a;
-            outline.a = ratio * outline.a;
-
-            entity->cShape->circle.setFillColor(fill);
-            entity->cShape->circle.setOutlineColor(outline);
+            sf::Color outlineColor = entity->cShape->circle.getFillColor();
+            outlineColor.a = 255 * ratio;
+            entity->cShape->circle.setOutlineColor(outlineColor);
         }
     }
 }
@@ -135,12 +159,14 @@ void Game::sRender() {
     m_window.clear();
 
     for(auto& entity: m_entityManager.getEntities()) {
-        entity->cShape->circle.setPosition(entity->cTransform->pos);
+        if(entity->cTransform && entity->cShape) {
+            entity->cShape->circle.setPosition(entity->cTransform->pos);
 
-        entity->cTransform->angle += 1.0f;
-        entity->cShape->circle.setRotation(entity->cTransform->angle);
+            entity->cTransform->angle += 1.0f;
+            entity->cShape->circle.setRotation(entity->cTransform->angle);
 
-        m_window.draw(entity->cShape->circle);
+            m_window.draw(entity->cShape->circle);
+        }
     }
 
     m_window.display();

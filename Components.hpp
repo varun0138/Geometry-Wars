@@ -18,23 +18,16 @@ public:
 class CShape {
 public:
     sf::CircleShape circle;
+    float radius;
 
-    CShape(float radius, unsigned int points, const sf::Color& fill, const sf::Color& outline, float thickness) 
-        : circle(radius, points) {
+    CShape(float rad, unsigned int points, const sf::Color& fill, const sf::Color& outline, float thickness) 
+        : circle(rad, points), radius(rad) {
 
         circle.setFillColor(fill);
         circle.setOutlineColor(outline);
         circle.setOutlineThickness(thickness);
         circle.setOrigin(sf::Vector2f(radius, radius));
     }
-};
-
-class CCollision {
-public:
-    float radius = 0.0f;
-
-    CCollision(float r)
-        : radius(r) {} 
 };
 
 class CInput {

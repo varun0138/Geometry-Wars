@@ -7,14 +7,14 @@ const unsigned int WINDOW_HEIGHT = 945;
 
 const unsigned int PLAYER_VERTICES = 8;
 const float PLAYER_RADIUS = 32.0f;
-const float PLAYER_SPEED = 5.0f;
+const float PLAYER_SPEED = 8.0f;
 const float PLAYER_OUTLINE_THICKNESS = 4.0f;
 const sf::Color PLAYER_FILL_COLOR = {5, 5, 5};
 const sf::Color PLAYER_OUTLINE_COLOR = {255, 0, 0};
 
 const unsigned int ENEMY_MIN_VERTICES = 3;
 const unsigned int ENEMY_MAX_VERTICES = 8;
-const unsigned int ENEMY_SPAWN_INTERVAL = 90;
+const unsigned int ENEMY_SPAWN_INTERVAL = 60;
 const float ENEMY_MIN_RADIUS = 26;
 const float ENEMY_MAX_RADIUS = 40;
 const float ENEMY_MIN_SPEED = 1;

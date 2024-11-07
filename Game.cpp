@@ -114,24 +114,24 @@ void Game::sMovement() {
 void Game::sCollision() {
 
     // PLAYER BOUNDARY
-    if(m_player->cTransform->pos.x <= PLAYER_RADIUS) { m_player->cTransform->pos.x = PLAYER_RADIUS; }
-    if(m_player->cTransform->pos.x >= WINDOW_WIDTH - PLAYER_RADIUS) { m_player->cTransform->pos.x = WINDOW_WIDTH - PLAYER_RADIUS; } 
-    if(m_player->cTransform->pos.y <= PLAYER_RADIUS) { m_player->cTransform->pos.y = PLAYER_RADIUS; }
-    if(m_player->cTransform->pos.y >= WINDOW_HEIGHT - PLAYER_RADIUS) { m_player->cTransform->pos.y = WINDOW_HEIGHT - PLAYER_RADIUS; }
+    if(m_player->cTransform->pos.x <= m_player->cShape->radius) { m_player->cTransform->pos.x = m_player->cShape->radius; }
+    if(m_player->cTransform->pos.x >= WINDOW_WIDTH - m_player->cShape->radius) { m_player->cTransform->pos.x = WINDOW_WIDTH - m_player->cShape->radius; } 
+    if(m_player->cTransform->pos.y <= m_player->cShape->radius) { m_player->cTransform->pos.y = m_player->cShape->radius; }
+    if(m_player->cTransform->pos.y >= WINDOW_HEIGHT - m_player->cShape->radius) { m_player->cTransform->pos.y = WINDOW_HEIGHT - m_player->cShape->radius; }
 
     // ENEMY BOUNDARY
     for(auto& enemy: m_entityManager.getEntities("Enemy")) {
-        if(enemy->cTransform->pos.x <= enemy->cShape->circle.getRadius() || enemy->cTransform->pos.x >= WINDOW_WIDTH - enemy->cShape->circle.getRadius()) {
+        if(enemy->cTransform->pos.x <= enemy->cShape->radius || enemy->cTransform->pos.x >= WINDOW_WIDTH - enemy->cShape->radius) {
             enemy->cTransform->velocity.x *= -1;
         }
-        if(enemy->cTransform->pos.y <= enemy->cShape->circle.getRadius() || enemy->cTransform->pos.y >= WINDOW_HEIGHT - enemy->cShape->circle.getRadius()) {
+        if(enemy->cTransform->pos.y <= enemy->cShape->radius || enemy->cTransform->pos.y >= WINDOW_HEIGHT - enemy->cShape->radius) {
             enemy->cTransform->velocity.y *= -1;
         }
     }
 
     // PLAYER ENEMY
     for(auto& enemy: m_entityManager.getEntities("Enemy")) {
-        float radii = m_player->cShape->circle.getRadius() + enemy->cShape->circle.getRadius();
+        float radii = m_player->cShape->radius + enemy->cShape->radius;
         float distance = std::sqrt(std::pow(m_player->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(m_player->cTransform->pos.y - enemy->cTransform->pos.y, 2));
         if(distance <= radii) {
             enemy->destroy();
@@ -142,7 +142,7 @@ void Game::sCollision() {
     // BULLET ENEMY
     for(auto& enemy: m_entityManager.getEntities("Enemy")) {
         for(auto& bullet: m_entityManager.getEntities("Bullet")) {
-            float radii = bullet->cShape->circle.getRadius() + enemy->cShape->circle.getRadius();
+            float radii = bullet->cShape->radius+ enemy->cShape->radius;
             float distance = std::sqrt(std::pow(bullet->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(bullet->cTransform->pos.y - enemy->cTransform->pos.y, 2));
             if(distance <= radii) {
                 m_score->cScore->score += enemy->cShape->circle.getPointCount();
@@ -223,7 +223,6 @@ void Game::spawnPlayer() {
     m_player = m_entityManager.addEntity("Player");
     m_player->cTransform = std::make_shared<CTransform>((sf::Vector2f)m_window.getSize() / 2.0f, sf::Vector2f(PLAYER_SPEED, PLAYER_SPEED), 0.0f);
     m_player->cShape = std::make_shared<CShape>(PLAYER_RADIUS, PLAYER_VERTICES, PLAYER_FILL_COLOR, PLAYER_OUTLINE_COLOR, PLAYER_OUTLINE_THICKNESS);
-    m_player->cCollision = std::make_shared<CCollision>(PLAYER_RADIUS);
     m_player->cInput = std::make_shared<CInput>();
     m_player->cScore = std::make_shared<CScore>();
 }
@@ -235,9 +234,9 @@ void Game::spawnEnemy() {
 
     const sf::FloatRect bounds = { m_player->cTransform->pos.x - PLAYER_RADIUS * 6, m_player->cTransform->pos.y - PLAYER_RADIUS * 6, PLAYER_RADIUS * 12, PLAYER_RADIUS * 12 };
 
-    sf::Vector2f pos = { m_random.randrange(radius * 4, WINDOW_WIDTH - (radius * 4), radius * 4), m_random.randrange(radius * 4, WINDOW_HEIGHT - (radius * 4), radius * 4) };
+    sf::Vector2f pos = { m_random.randfloat(radius * 2, WINDOW_WIDTH - (radius * 2)), m_random.randfloat(radius * 2, WINDOW_WIDTH - (radius * 2)) };
     while(bounds.contains(pos)) {
-        pos = { m_random.randrange(radius * 4, WINDOW_WIDTH - (radius * 4), radius * 4), m_random.randrange(radius * 4, WINDOW_HEIGHT - (radius * 4), radius * 4) };
+        pos = { m_random.randfloat(radius * 2, WINDOW_WIDTH - (radius * 2)), m_random.randfloat(radius * 2, WINDOW_WIDTH - (radius * 2)) };
     }
 
     const sf::Vector2f velocity = { m_random.randfloat(ENEMY_MIN_SPEED, ENEMY_MAX_SPEED),  m_random.randfloat(ENEMY_MIN_SPEED, ENEMY_MAX_SPEED) };
@@ -245,9 +244,8 @@ void Game::spawnEnemy() {
     auto enemy = m_entityManager.addEntity("Enemy");
     enemy->cTransform = std::make_shared<CTransform>(pos, velocity, 0.0f);
     enemy->cShape = std::make_shared<CShape>(radius, vertices, color, ENEMY_OUTLINE_COLOR, ENEMY_OUTLINE_THICKNESS);
-    enemy->cCollision = std::make_shared<CCollision>(radius);
 
-    if(vertices <= 4) { enemy->cType = std::make_shared<CType>("Tracker"); }
+    enemy->cType = std::make_shared<CType>("Tracker");
 }
 
 void Game::spawnSmallerEnemies(std::shared_ptr<Entity> entity) {
@@ -263,7 +261,7 @@ void Game::spawnSmallerEnemies(std::shared_ptr<Entity> entity) {
 
         smallerEnemy->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0.0f);
 
-        smallerEnemy->cShape = std::make_shared<CShape>(entity->cShape->circle.getRadius() / 2.0f, entity->cShape->circle.getPointCount(), entity->cShape->circle.getFillColor(), entity->cShape->circle.getOutlineColor(), entity->cShape->circle.getOutlineThickness());
+        smallerEnemy->cShape = std::make_shared<CShape>(entity->cShape->radius / 2.0f, entity->cShape->circle.getPointCount(), entity->cShape->circle.getFillColor(), entity->cShape->circle.getOutlineColor(), entity->cShape->circle.getOutlineThickness());
 
         smallerEnemy->cLifeSpan = std::make_shared<CLifeSpan>(SMALLER_ENEMY_LIFESPAN);
     }
@@ -286,7 +284,6 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const sf::Vector2f& targe
 
     bullet->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
     bullet->cShape = std::make_shared<CShape>(BULLET_RADIUS, BULLET_VERTICES, BULLET_FILL_COLOR, BULLET_OUTLINE_COLOR, BULLET_OUTLINE_THICKNESS);
-    bullet->cCollision = std::make_shared<CCollision>(BULLET_RADIUS);
     bullet->cLifeSpan = std::make_shared<CLifeSpan>(BULLET_LIFESPAN);
 }
 
@@ -313,7 +310,7 @@ void Game::spawnGlyph(std::shared_ptr<Entity> entity) {
 
         glyph->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, entity->cTransform->velocity, 0.0f);
     
-        glyph->cGlyph = std::make_shared<CGlyph>(m_font, std::to_string(entity->cShape->circle.getPointCount()), entity->cShape->circle.getRadius(), entity->cShape->circle.getFillColor());
+        glyph->cGlyph = std::make_shared<CGlyph>(m_font, std::to_string(entity->cShape->circle.getPointCount()), entity->cShape->radius, entity->cShape->circle.getFillColor());
 
         glyph->cLifeSpan = std::make_shared<CLifeSpan>(SMALLER_ENEMY_LIFESPAN * 2);
     }

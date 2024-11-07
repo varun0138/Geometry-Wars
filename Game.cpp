@@ -33,6 +33,7 @@ void Game::run() {
             sMovement();
             sCollision();
             sLifeSpan();
+            sAnimation();
 
             m_currentFrame++;
         }
@@ -188,6 +189,15 @@ void Game::sLifeSpan() {
     }
 }
 
+void Game::sAnimation() {
+    const float speed = 0.035f;
+    for(auto& entity: m_entityManager.getEntities("Enemy")) {
+        sf::Vector2f scale = { 1.0f + 0.05f * std::sin(speed * m_currentFrame), 1.0f + 0.05f * std::cos(speed * m_currentFrame) };
+
+        entity->cShape->circle.setScale(scale);
+    }
+}
+
 void Game::sRender() {
     m_window.clear();
 
@@ -203,6 +213,17 @@ void Game::sRender() {
     }
 
     for(auto& entity: m_entityManager.getEntities("Enemy")) {
+        if(entity->cTransform && entity->cShape) {
+            entity->cShape->circle.setPosition(entity->cTransform->pos);
+
+            entity->cTransform->angle += 1.0f;
+            entity->cShape->circle.setRotation(entity->cTransform->angle);
+
+            m_window.draw(entity->cShape->circle);
+        }
+    }
+
+    for(auto& entity: m_entityManager.getEntities("Small Enemy")) {
         if(entity->cTransform && entity->cShape) {
             entity->cShape->circle.setPosition(entity->cTransform->pos);
 
@@ -279,6 +300,7 @@ void Game::spawnEnemy() {
     auto enemy = m_entityManager.addEntity("Enemy");
     enemy->cTransform = std::make_shared<CTransform>(pos, velocity, 0.0f);
     enemy->cShape = std::make_shared<CShape>(radius, vertices, color, ENEMY_OUTLINE_COLOR, ENEMY_OUTLINE_THICKNESS);
+    enemy->cShape->circle.setScale(sf::Vector2f(1.0f, 2.0f));
 
     enemy->cType = std::make_shared<CType>("Tracker");
 }
@@ -287,7 +309,7 @@ void Game::spawnSmallerEnemies(std::shared_ptr<Entity> entity) {
     const float angle = 360 / entity->cShape->circle.getPointCount();
 
     for(unsigned int i = 0; i < entity->cShape->circle.getPointCount(); i++) {
-        auto smallerEnemy = m_entityManager.addEntity("smallEnemy");
+        auto smallerEnemy = m_entityManager.addEntity("Small Enemy");
 
         const float speed = std::sqrt(std::pow(entity->cTransform->velocity.x, 2) + std::pow(entity->cTransform->velocity.y, 2));
         const float angleRad = angle * (3.14159265 / 180.0);
@@ -355,13 +377,13 @@ void Game::spawnGlyph(std::shared_ptr<Entity> entity) {
 
 void Game::spawnParticles(std::shared_ptr<Entity> entity) {
     
-    for(unsigned int i = 0; i < 50; i++) {
+    for(unsigned int i = 0; i < 10; i++) {
         auto particle = m_entityManager.addEntity("Particle");
 
-        const sf::Vector2f velocity = { m_random.randfloat(0, 2) * 3 - 2,  m_random.randfloat(0, 2) * 3 - 2 };
+        const sf::Vector2f velocity = { m_random.randfloat(0, 2) * 2 - 2,  m_random.randfloat(0, 2) * 2 - 2 };
 
         particle->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
-        particle->cShape = std::make_shared<CShape>(entity->cShape->radius * 0.05f, entity->cShape->circle.getPointCount(), sf::Color::Red, sf::Color::Red, 0.0f);
+        particle->cShape = std::make_shared<CShape>(entity->cShape->radius * 0.05f, entity->cShape->circle.getPointCount(), sf::Color(200, 200, 200), sf::Color(200, 200, 200), 0.0f);
         particle->cLifeSpan = std::make_shared<CLifeSpan>(30 + m_random.randint(10, 20));
     }
 }

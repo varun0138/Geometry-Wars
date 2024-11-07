@@ -30,6 +30,7 @@ private:
     void sMovement();
     void sCollision();
     void sLifeSpan();
+    void sAnimation();
     void sRender();
 
     void spawnScore();

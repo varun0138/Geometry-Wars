@@ -16,6 +16,7 @@ private:
     EntityManager m_entityManager;
 
     std::shared_ptr<Entity> m_player;
+    std::shared_ptr<Entity> m_score;
 
     bool m_running = true;
     bool m_paused = false;
@@ -31,6 +32,7 @@ private:
     void sLifeSpan();
     void sRender();
 
+    void spawnScore();
     void spawnPlayer();
     void spawnEnemy();
     void spawnSmallerEnemies(std::shared_ptr<Entity> entity);

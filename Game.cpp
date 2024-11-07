@@ -19,6 +19,7 @@ Game::Game() {
 
 void Game::setUp() {
     spawnPlayer();
+    spawnScore();
 }
 
 void Game::run() {
@@ -144,6 +145,8 @@ void Game::sCollision() {
             float radii = bullet->cShape->circle.getRadius() + enemy->cShape->circle.getRadius();
             float distance = std::sqrt(std::pow(bullet->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(bullet->cTransform->pos.y - enemy->cTransform->pos.y, 2));
             if(distance <= radii) {
+                m_score->cScore->score += enemy->cShape->circle.getPointCount();
+                m_score->cGlyph->text.setString("SCORE: " + std::to_string(m_score->cScore->score));
                 spawnSmallerEnemies(enemy);
                 spawnGlyph(enemy);
                 enemy->destroy();
@@ -206,6 +209,14 @@ void Game::sRender() {
     }
 
     m_window.display();
+}
+
+void Game::spawnScore() {
+    m_score = m_entityManager.addEntity("Score Glyph"); 
+
+    m_score->cTransform = std::make_shared<CTransform>(sf::Vector2f(5.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
+    m_score->cScore = std::make_shared<CScore>(0);
+    m_score->cGlyph = std::make_shared<CGlyph>(m_font, "SCORE: " + std::to_string(m_score->cScore->score), 30, sf::Color::White);
 }
 
 void Game::spawnPlayer() {

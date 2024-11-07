@@ -10,6 +10,12 @@ This game is a simplified Geometry Wars-inspired shooter where the player battle
 - **Special Ability**: Right mouse button - Fires a unique weapon
 - **Pause**: P key
 
+## Demo
+
+Here’s a quick preview of the game:
+
+![Game](gifs/demo.gif)
+
 ## Building the Project
 **Note**: These instructions are specifically for Windows. For other platforms, adjust the paths and compilation steps accordingly.
 

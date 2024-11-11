@@ -120,23 +120,13 @@ void Game::sCollision() {
     if(m_player->cTransform->pos.y <= m_player->cShape->radius) { m_player->cTransform->pos.y = m_player->cShape->radius; }
     if(m_player->cTransform->pos.y >= WINDOW_HEIGHT - m_player->cShape->radius) { m_player->cTransform->pos.y = WINDOW_HEIGHT - m_player->cShape->radius; }
 
-    // ENEMY BOUNDARY
-    for(auto& enemy: m_entityManager.getEntities("Enemy")) {
-        if(enemy->cTransform->pos.x <= enemy->cShape->radius || enemy->cTransform->pos.x >= WINDOW_WIDTH - enemy->cShape->radius) {
-            enemy->cTransform->velocity.x *= -1;
-        }
-        if(enemy->cTransform->pos.y <= enemy->cShape->radius || enemy->cTransform->pos.y >= WINDOW_HEIGHT - enemy->cShape->radius) {
-            enemy->cTransform->velocity.y *= -1;
-        }
-    }
-
     // PLAYER ENEMY
     for(auto& enemy: m_entityManager.getEntities("Enemy")) {
         float radii = m_player->cShape->radius + enemy->cShape->radius;
         float distance = std::sqrt(std::pow(m_player->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(m_player->cTransform->pos.y - enemy->cTransform->pos.y, 2));
         if(distance <= radii) {
             enemy->destroy();
-            quit();
+            // quit();
         }
     }
 
@@ -365,7 +355,7 @@ void Game::spawnGlyph(std::shared_ptr<Entity> entity) {
     if(entity->cTransform && entity->cShape) {
         auto glyph = m_entityManager.addEntity("Glyph"); 
         
-        sf::Vector2f velocity = { entity->cTransform->velocity.x / entity->cTransform->velocity.x, entity->cTransform->velocity.y / entity->cTransform->velocity.y };
+        sf::Vector2f velocity = { entity->cTransform->velocity.x / std::abs(entity->cTransform->velocity.x), entity->cTransform->velocity.y / std::abs(entity->cTransform->velocity.y) };
 
         glyph->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
     

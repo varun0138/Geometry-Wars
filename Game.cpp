@@ -4,6 +4,7 @@
 #include <SFML/Window/Event.hpp>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 
 Game::Game() {
     m_window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "", sf::Style::Close | sf::Style::Titlebar);
@@ -20,6 +21,7 @@ Game::Game() {
 void Game::setUp() {
     spawnPlayer();
     spawnScore();
+    spawnHighScore();
 }
 
 void Game::run() {
@@ -127,6 +129,7 @@ void Game::sCollision() {
         float distance = std::sqrt(std::pow(m_player->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(m_player->cTransform->pos.y - enemy->cTransform->pos.y, 2));
         if(distance <= radii) {
             enemy->destroy();
+            setHighScore();
             quit();
         }
     }
@@ -139,6 +142,10 @@ void Game::sCollision() {
             if(distance <= radii) {
                 m_score->cScore->score += enemy->cShape->circle.getPointCount();
                 m_score->cGlyph->text.setString("SCORE: " + std::to_string(m_score->cScore->score));
+                if(m_score->cScore->score > m_highScore->cScore->score) {
+                    m_highScore->cScore->score = m_score->cScore->score;
+                    m_highScore->cGlyph->text.setString("HIGH SCORE: " + std::to_string(m_highScore->cScore->score));
+                }
                 spawnSmallerEnemies(enemy);
                 spawnGlyph(enemy);
                 enemy->destroy();
@@ -261,9 +268,36 @@ void Game::sRender() {
 void Game::spawnScore() {
     m_score = m_entityManager.addEntity("Glyph"); 
 
-    m_score->cTransform = std::make_shared<CTransform>(sf::Vector2f(5.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
+    m_score->cTransform = std::make_shared<CTransform>(sf::Vector2f(5.0f, 10.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
     m_score->cScore = std::make_shared<CScore>(0);
     m_score->cGlyph = std::make_shared<CGlyph>(m_font, "SCORE: " + std::to_string(m_score->cScore->score), 30, sf::Color::White);
+}
+
+void Game::spawnHighScore() {
+    std::ifstream file("./Stats.ini");
+    if(!file) {
+        std::cerr << "Error loading Stats file!!" << std::endl;
+    }
+    unsigned int value;
+    file >> value;
+    
+    file.close();
+
+    m_highScore = m_entityManager.addEntity("Glyph"); 
+
+    m_highScore->cTransform = std::make_shared<CTransform>(sf::Vector2f(1350.0f, 10.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
+    m_highScore->cScore = std::make_shared<CScore>(value);
+    m_highScore->cGlyph = std::make_shared<CGlyph>(m_font, "HIGH SCORE: " + std::to_string(m_highScore->cScore->score), 30, sf::Color::White);
+}
+
+void Game::setHighScore() {
+    std::ofstream file("./Stats.ini");
+    if(!file) {
+        std::cerr << "Error loading Stats file!!" << std::endl;
+    }
+    file << m_highScore->cScore->score;
+    
+    file.close();
 }
 
 void Game::spawnPlayer() {

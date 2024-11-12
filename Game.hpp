@@ -20,7 +20,7 @@ private:
     std::shared_ptr<Entity> m_highScore;
 
     bool m_running = true;
-    bool m_paused = false;
+    bool m_paused = true;
 
     unsigned int m_currentFrame = 0;
     unsigned int m_lastEnemySpawnTime = 0; 

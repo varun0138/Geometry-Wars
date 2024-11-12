@@ -97,15 +97,11 @@ void Game::sMovement() {
     }
 
     for(auto& enemy: m_entityManager.getEntities("Enemy")) {
-        if(enemy->cType) {
-            if(enemy->cType->type == "Tracker") {
-                sf::Vector2f velocity = m_player->cTransform->pos - enemy->cTransform->pos;
-                float mag = std::sqrt(std::pow(velocity.x, 2) + std::pow(velocity.y, 2));
-                velocity = { velocity.x / mag, velocity.y / mag };
-                velocity *= ENEMY_MAX_SPEED;
-                enemy->cTransform->velocity = velocity;
-            }
-        }
+        sf::Vector2f velocity = m_player->cTransform->pos - enemy->cTransform->pos;
+        float mag = std::sqrt(std::pow(velocity.x, 2) + std::pow(velocity.y, 2));
+        velocity = { velocity.x / mag, velocity.y / mag };
+        velocity *= ENEMY_MAX_SPEED;
+        enemy->cTransform->velocity = velocity;
     }
 
     for(auto& entity: m_entityManager.getEntities()) {
@@ -326,8 +322,6 @@ void Game::spawnEnemy() {
     enemy->cTransform = std::make_shared<CTransform>(pos, velocity, 0.0f);
     enemy->cShape = std::make_shared<CShape>(radius, vertices, color, ENEMY_OUTLINE_COLOR, ENEMY_OUTLINE_THICKNESS);
     enemy->cShape->circle.setScale(sf::Vector2f(1.0f, 2.0f));
-
-    enemy->cType = std::make_shared<CType>("Tracker");
 }
 
 void Game::spawnSmallerEnemies(std::shared_ptr<Entity> entity) {

@@ -55,6 +55,7 @@ void Game::sUserInput() {
                 else if(event.key.code == sf::Keyboard::S) { m_player->cInput->down = true; }
                 else if(event.key.code == sf::Keyboard::A) { m_player->cInput->left = true; }
                 else if(event.key.code == sf::Keyboard::D) { m_player->cInput->right = true; }
+                else if(event.key.code == sf::Keyboard::P) { setPaused(!m_paused); }
                 break;
 
             case sf::Event::KeyReleased:
@@ -126,7 +127,7 @@ void Game::sCollision() {
         float distance = std::sqrt(std::pow(m_player->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(m_player->cTransform->pos.y - enemy->cTransform->pos.y, 2));
         if(distance <= radii) {
             enemy->destroy();
-            // quit();
+            quit();
         }
     }
 

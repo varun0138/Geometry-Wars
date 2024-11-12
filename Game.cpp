@@ -22,6 +22,7 @@ void Game::setUp() {
     spawnPlayer();
     spawnScore();
     spawnHighScore();
+    spawnLives();
 }
 
 void Game::run() {
@@ -125,8 +126,12 @@ void Game::sCollision() {
         float distance = std::sqrt(std::pow(m_player->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(m_player->cTransform->pos.y - enemy->cTransform->pos.y, 2));
         if(distance <= radii) {
             enemy->destroy();
-            setHighScore();
-            quit();
+            m_lives->cScore->score--;
+            m_lives->cGlyph->text.setString("LIVES: " + std::to_string(m_lives->cScore->score));
+            if(m_lives->cScore->score <= 0) {
+                setHighScore();
+                quit();
+            }
         }
     }
 
@@ -295,6 +300,14 @@ void Game::setHighScore() {
     
     file.close();
 }
+
+void Game::spawnLives() {
+    m_lives = m_entityManager.addEntity("Glyph"); 
+
+    m_lives->cTransform = std::make_shared<CTransform>(sf::Vector2f(700.0f, 10.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
+    m_lives->cScore = std::make_shared<CScore>(5);
+    m_lives->cGlyph = std::make_shared<CGlyph>(m_font, "LIVES: " + std::to_string(m_lives->cScore->score), 30, sf::Color::White);
+}   
 
 void Game::spawnPlayer() {
     m_player = m_entityManager.addEntity("Player");

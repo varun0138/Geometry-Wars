@@ -18,6 +18,7 @@ private:
     std::shared_ptr<Entity> m_player;
     std::shared_ptr<Entity> m_score;
     std::shared_ptr<Entity> m_highScore;
+    std::shared_ptr<Entity> m_lives;
 
     bool m_running = true;
     bool m_paused = true;
@@ -37,6 +38,7 @@ private:
     void spawnScore();
     void spawnHighScore();
     void setHighScore();
+    void spawnLives();
     void spawnPlayer();
     void spawnEnemy();
     void spawnSmallerEnemies(std::shared_ptr<Entity> entity);

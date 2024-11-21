@@ -19,9 +19,14 @@ private:
     std::shared_ptr<Entity> m_score;
     std::shared_ptr<Entity> m_highScore;
     std::shared_ptr<Entity> m_lives;
+    std::shared_ptr<Entity> m_timer;
 
     bool m_running = true;
-    bool m_paused = true;
+    bool m_paused = false;
+    bool m_startTimer = true;
+
+    int m_startTimerTotal = 3;
+    int m_startTimerRemaining = m_startTimerTotal;
 
     unsigned int m_currentFrame = 0;
     unsigned int m_lastEnemySpawnTime = 0; 
@@ -36,6 +41,7 @@ private:
     void sRender();
     void sTrail();
 
+    void spawnStartTimer();
     void spawnStar();
     void spawnScore();
     void spawnHighScore();

@@ -27,6 +27,7 @@ void Game::setUp() {
     spawnScore();
     spawnHighScore();
     spawnLives();
+    spawnStartTimer();
 }
 
 void Game::run() {
@@ -35,7 +36,7 @@ void Game::run() {
         m_entityManager.update();
         sUserInput();
 
-        if(!m_paused) {
+        if(!m_paused && m_startTimerRemaining <= 0) {
             enemySpawner();
             sMovement();
             sTrail();
@@ -45,7 +46,6 @@ void Game::run() {
 
             m_currentFrame++;
         }
-        
         sRender();
     }
 }
@@ -326,7 +326,36 @@ void Game::sRender() {
         }
     }
 
+    if(m_startTimer) {
+        m_startTimerRemaining = m_startTimerTotal - (unsigned int)m_clock.getElapsedTime().asSeconds();
+
+        if(m_startTimerRemaining > 0) {
+            m_timer->cGlyph->text.setString(std::to_string(m_startTimerRemaining));
+            for(auto& entity: m_entityManager.getEntities("Start Timer")) {
+                if(entity->cGlyph) {
+                    entity->cGlyph->text.setPosition(entity->cTransform->pos);
+
+                    m_window.draw(entity->cGlyph->text);
+                }
+            }
+        }
+        else {
+            m_startTimer = false;
+        }
+    }
+
     m_window.display();
+}
+
+void Game::spawnStartTimer() {
+    m_timer = m_entityManager.addEntity("Start Timer"); 
+
+    m_timer->cGlyph = std::make_shared<CGlyph>(m_font, std::to_string(m_startTimerRemaining), START_TIMER_FONT_SIZE, START_TIMER_FONT_COLOR);
+
+    sf::FloatRect bounds = m_timer->cGlyph->text.getLocalBounds();
+    m_timer->cGlyph->text.setOrigin(bounds.left + bounds.width / 2.0f, bounds.top + bounds.height / 2.0f);
+
+    m_timer->cTransform = std::make_shared<CTransform>(sf::Vector2f(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
 }
 
 void Game::sTrail() {

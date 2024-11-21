@@ -38,3 +38,6 @@ const sf::Color STAR_COLOR = {213, 224, 216};
 
 const unsigned int HUD_FONT_SIZE = 40;
 const sf::Color HUD_FONT_COLOR = {190, 212, 85};
+
+const unsigned int START_TIMER_FONT_SIZE = 300;
+const sf::Color START_TIMER_FONT_COLOR = {190, 212, 85};

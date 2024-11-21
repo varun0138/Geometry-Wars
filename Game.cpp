@@ -19,6 +19,10 @@ Game::Game() {
 }
 
 void Game::setUp() {
+    for(unsigned int i = 0; i < 200; i++) {
+        spawnStar();
+    }
+
     spawnPlayer();
     spawnScore();
     spawnHighScore();
@@ -162,6 +166,11 @@ void Game::sLifeSpan() {
             float ratio = ((float)entity->cLifeSpan->remaining / (float)entity->cLifeSpan->total);
 
             if(entity->cLifeSpan->remaining <= 0 || ratio < 0.4) {
+
+                if(entity->tag() == "Star") {
+                    spawnStar();
+                }
+
                 entity->destroy();
                 continue;
             }
@@ -199,6 +208,18 @@ void Game::sAnimation() {
 
 void Game::sRender() {
     m_window.clear();
+
+    for(auto& entity: m_entityManager.getEntities("Star")) {
+        if(entity->cTransform && entity->cShape) {
+            entity->cShape->circle.setPosition(entity->cTransform->pos);
+            entity->cShape->circle.setRadius(entity->cShape->radius);
+
+            entity->cTransform->angle += 1.0f;
+            entity->cShape->circle.setRotation(entity->cTransform->angle);
+
+            m_window.draw(entity->cShape->circle);
+        }
+    }
 
     for(auto& entity: m_entityManager.getEntities("Particle")) {
         if(entity->cTransform && entity->cShape) {
@@ -264,6 +285,14 @@ void Game::sRender() {
     }
 
     m_window.display();
+}
+
+void Game::spawnStar() {
+    auto star = m_entityManager.addEntity("Star");
+
+    star->cTransform = std::make_shared<CTransform>(sf::Vector2f(m_random.randint(0, WINDOW_WIDTH), m_random.randint(0, WINDOW_HEIGHT)), sf::Vector2f(m_random.randfloat(0, 2) * 4 - 2, m_random.randfloat(0, 2) * 3 - 1), 0.0f);
+    star->cShape = std::make_shared<CShape>(m_random.randfloat(1, 2), m_random.randint(STAR_MIN_VERTICES, STAR_MAX_VERTICES), STAR_COLOR, STAR_COLOR, 0.0f);
+    star->cLifeSpan = std::make_shared<CLifeSpan>(m_random.randint(100, 200));
 }
 
 void Game::spawnScore() {

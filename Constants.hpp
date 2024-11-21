@@ -30,3 +30,7 @@ const float BULLET_SPEED = 20;
 const float BULLET_OUTLINE_THICKNESS = 3;
 const sf::Color BULLET_FILL_COLOR = {225, 225, 225};
 const sf::Color BULLET_OUTLINE_COLOR = {255, 255, 255};
+
+const unsigned int STAR_MIN_VERTICES = 14;
+const unsigned int STAR_MAX_VERTICES = 30;
+const sf::Color STAR_COLOR = {213, 224, 216};

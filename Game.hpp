@@ -35,6 +35,7 @@ private:
     void sAnimation();
     void sRender();
 
+    void spawnStar();
     void spawnScore();
     void spawnHighScore();
     void setHighScore();

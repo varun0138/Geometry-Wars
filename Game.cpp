@@ -11,7 +11,7 @@ Game::Game() {
     m_window.setPosition(sf::Vector2i(100, 5));
     m_window.setFramerateLimit(60);
 
-    if(!m_font.loadFromFile("./fonts/Retron2000.ttf")) {
+    if(!m_font.loadFromFile("./fonts/Golden Age Shad.ttf")) {
         std::cerr << "Error loading font file!!" << std::endl;
     }
 
@@ -298,9 +298,9 @@ void Game::spawnStar() {
 void Game::spawnScore() {
     m_score = m_entityManager.addEntity("Glyph"); 
 
-    m_score->cTransform = std::make_shared<CTransform>(sf::Vector2f(5.0f, 10.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
+    m_score->cTransform = std::make_shared<CTransform>(sf::Vector2f(5.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
     m_score->cScore = std::make_shared<CScore>(0);
-    m_score->cGlyph = std::make_shared<CGlyph>(m_font, "SCORE: " + std::to_string(m_score->cScore->score), 30, sf::Color::White);
+    m_score->cGlyph = std::make_shared<CGlyph>(m_font, "SCORE: " + std::to_string(m_score->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
 }
 
 void Game::spawnHighScore() {
@@ -315,9 +315,9 @@ void Game::spawnHighScore() {
 
     m_highScore = m_entityManager.addEntity("Glyph"); 
 
-    m_highScore->cTransform = std::make_shared<CTransform>(sf::Vector2f(1350.0f, 10.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
+    m_highScore->cTransform = std::make_shared<CTransform>(sf::Vector2f(1290.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
     m_highScore->cScore = std::make_shared<CScore>(value);
-    m_highScore->cGlyph = std::make_shared<CGlyph>(m_font, "HIGH SCORE: " + std::to_string(m_highScore->cScore->score), 30, sf::Color::White);
+    m_highScore->cGlyph = std::make_shared<CGlyph>(m_font, "HIGH SCORE: " + std::to_string(m_highScore->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
 }
 
 void Game::setHighScore() {
@@ -333,9 +333,9 @@ void Game::setHighScore() {
 void Game::spawnLives() {
     m_lives = m_entityManager.addEntity("Glyph"); 
 
-    m_lives->cTransform = std::make_shared<CTransform>(sf::Vector2f(700.0f, 10.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
+    m_lives->cTransform = std::make_shared<CTransform>(sf::Vector2f(700.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
     m_lives->cScore = std::make_shared<CScore>(5);
-    m_lives->cGlyph = std::make_shared<CGlyph>(m_font, "LIVES: " + std::to_string(m_lives->cScore->score), 30, sf::Color::White);
+    m_lives->cGlyph = std::make_shared<CGlyph>(m_font, "LIVES: " + std::to_string(m_lives->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
 }   
 
 void Game::spawnPlayer() {

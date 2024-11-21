@@ -70,3 +70,11 @@ public:
         text.setFillColor(color);
     }
 };
+
+class CInvincibility {
+public:
+    unsigned int iFrames = 0;
+
+    CInvincibility(unsigned int f=0)
+        : iFrames(f) {}
+};

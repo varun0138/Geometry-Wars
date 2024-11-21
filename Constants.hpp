@@ -6,6 +6,7 @@ const unsigned int WINDOW_WIDTH = 1680;
 const unsigned int WINDOW_HEIGHT = 945;
 
 const unsigned int PLAYER_VERTICES = 8;
+const unsigned int PLAYER_INVINCIBILITY = 100;
 const float PLAYER_RADIUS = 32.0f;
 const float PLAYER_SPEED = 8.0f;
 const float PLAYER_OUTLINE_THICKNESS = 4.0f;

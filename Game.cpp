@@ -128,14 +128,18 @@ void Game::sCollision() {
     for(auto& enemy: m_entityManager.getEntities("Enemy")) {
         float radii = m_player->cShape->radius + enemy->cShape->radius;
         float distance = std::sqrt(std::pow(m_player->cTransform->pos.x - enemy->cTransform->pos.x, 2) + std::pow(m_player->cTransform->pos.y - enemy->cTransform->pos.y, 2));
-        if(distance <= radii) {
-            enemy->destroy();
+        if(m_player->cInvincibility->iFrames == 0 && distance <= radii) {
+            m_player->cInvincibility->iFrames = PLAYER_INVINCIBILITY;
             m_lives->cScore->score--;
             m_lives->cGlyph->text.setString("LIVES: " + std::to_string(m_lives->cScore->score));
             if(m_lives->cScore->score <= 0) {
                 setHighScore();
                 quit();
             }
+        }
+        else if(distance <= radii) {
+            enemy->destroy();
+            spawnSmallerEnemies(enemy);
         }
     }
 
@@ -204,6 +208,25 @@ void Game::sAnimation() {
 
         entity->cShape->circle.setScale(scale);
     }
+
+    // PLAYER HIT EFFECT
+    if(m_player->cInvincibility && m_player->cInvincibility->iFrames > 0) {
+        m_player->cInvincibility->iFrames--;
+
+        // Flash effect: toggle between red and original color
+        if (m_player->cInvincibility->iFrames % 10 < 5) {
+            m_player->cShape->circle.setFillColor(sf::Color(255, 255, 255, 127)); // Flash color
+            m_player->cShape->radius -= 1;
+        } else {
+            m_player->cShape->circle.setFillColor(sf::Color(PLAYER_OUTLINE_COLOR.r, PLAYER_OUTLINE_COLOR.g, PLAYER_OUTLINE_COLOR.b, 127)); // Original color
+            m_player->cShape->radius += 1;
+        }
+
+        if(m_player->cInvincibility->iFrames == 0) {
+            m_player->cShape->circle.setFillColor(PLAYER_FILL_COLOR);
+            m_player->cShape->radius = PLAYER_RADIUS;
+        }
+    }
 }
 
 void Game::sRender() {
@@ -224,6 +247,7 @@ void Game::sRender() {
     for(auto& entity: m_entityManager.getEntities("Particle")) {
         if(entity->cTransform && entity->cShape) {
             entity->cShape->circle.setPosition(entity->cTransform->pos);
+            entity->cShape->circle.setRadius(entity->cShape->radius);
 
             entity->cTransform->angle += 1.0f;
             entity->cShape->circle.setRotation(entity->cTransform->angle);
@@ -235,6 +259,7 @@ void Game::sRender() {
     for(auto& entity: m_entityManager.getEntities("Enemy")) {
         if(entity->cTransform && entity->cShape) {
             entity->cShape->circle.setPosition(entity->cTransform->pos);
+            entity->cShape->circle.setRadius(entity->cShape->radius);
 
             entity->cTransform->angle += 1.0f;
             entity->cShape->circle.setRotation(entity->cTransform->angle);
@@ -246,17 +271,7 @@ void Game::sRender() {
     for(auto& entity: m_entityManager.getEntities("Small Enemy")) {
         if(entity->cTransform && entity->cShape) {
             entity->cShape->circle.setPosition(entity->cTransform->pos);
-
-            entity->cTransform->angle += 1.0f;
-            entity->cShape->circle.setRotation(entity->cTransform->angle);
-
-            m_window.draw(entity->cShape->circle);
-        }
-    }
-
-    for(auto& entity: m_entityManager.getEntities("Player")) {
-        if(entity->cTransform && entity->cShape) {
-            entity->cShape->circle.setPosition(entity->cTransform->pos);
+            entity->cShape->circle.setRadius(entity->cShape->radius);
 
             entity->cTransform->angle += 1.0f;
             entity->cShape->circle.setRotation(entity->cTransform->angle);
@@ -268,6 +283,19 @@ void Game::sRender() {
     for(auto& entity: m_entityManager.getEntities("Bullet")) {
         if(entity->cTransform && entity->cShape) {
             entity->cShape->circle.setPosition(entity->cTransform->pos);
+            entity->cShape->circle.setRadius(entity->cShape->radius);
+
+            entity->cTransform->angle += 1.0f;
+            entity->cShape->circle.setRotation(entity->cTransform->angle);
+
+            m_window.draw(entity->cShape->circle);
+        }
+    }
+
+    for(auto& entity: m_entityManager.getEntities("Player")) {
+        if(entity->cTransform && entity->cShape) {
+            entity->cShape->circle.setPosition(entity->cTransform->pos);
+            entity->cShape->circle.setRadius(entity->cShape->radius);
 
             entity->cTransform->angle += 1.0f;
             entity->cShape->circle.setRotation(entity->cTransform->angle);
@@ -344,6 +372,7 @@ void Game::spawnPlayer() {
     m_player->cShape = std::make_shared<CShape>(PLAYER_RADIUS, PLAYER_VERTICES, PLAYER_FILL_COLOR, PLAYER_OUTLINE_COLOR, PLAYER_OUTLINE_THICKNESS);
     m_player->cInput = std::make_shared<CInput>();
     m_player->cScore = std::make_shared<CScore>();
+    m_player->cInvincibility = std::make_shared<CInvincibility>();
 }
 
 void Game::spawnEnemy() {

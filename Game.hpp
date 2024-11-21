@@ -34,6 +34,7 @@ private:
     void sLifeSpan();
     void sAnimation();
     void sRender();
+    void sTrail();
 
     void spawnStar();
     void spawnScore();

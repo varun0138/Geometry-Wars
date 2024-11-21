@@ -8,11 +8,12 @@
 class CTransform {
 public:
     sf::Vector2f pos = { 0.0f, 0.0f };
+    sf::Vector2f prevPos = { 0.0f, 0.0f };
     sf::Vector2f velocity = { 0.0f, 0.0f };
     float angle = 0.0f;
 
     CTransform(const sf::Vector2f& p, const sf::Vector2f& v, float a) 
-        : pos(p), velocity(v), angle(a) {}
+        : pos(p), prevPos(p), velocity(v), angle(a) {}
 };
 
 class CShape {

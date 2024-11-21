@@ -38,6 +38,7 @@ void Game::run() {
         if(!m_paused) {
             enemySpawner();
             sMovement();
+            sTrail();
             sCollision();
             sLifeSpan();
             sAnimation();
@@ -111,6 +112,7 @@ void Game::sMovement() {
 
     for(auto& entity: m_entityManager.getEntities()) {
         if(entity->cTransform) {
+            entity->cTransform->prevPos = entity->cTransform->pos;
             entity->cTransform->pos += entity->cTransform->velocity;
         }
     }
@@ -292,6 +294,18 @@ void Game::sRender() {
         }
     }
 
+    for(auto& entity: m_entityManager.getEntities("Trail")) {
+        if(entity->cTransform && entity->cShape) {
+            entity->cShape->circle.setPosition(entity->cTransform->pos);
+            entity->cShape->circle.setRadius(entity->cShape->radius);
+
+            entity->cTransform->angle += 1.0f;
+            entity->cShape->circle.setRotation(entity->cTransform->angle);
+
+            m_window.draw(entity->cShape->circle);
+        }
+    }
+
     for(auto& entity: m_entityManager.getEntities("Player")) {
         if(entity->cTransform && entity->cShape) {
             entity->cShape->circle.setPosition(entity->cTransform->pos);
@@ -313,6 +327,19 @@ void Game::sRender() {
     }
 
     m_window.display();
+}
+
+void Game::sTrail() {
+    for(auto& bullet: m_entityManager.getEntities("Bullet")) {
+        auto trail = m_entityManager.addEntity("Trail");
+
+        sf::Color fillColor = bullet->cShape->circle.getFillColor();
+        sf::Color outLine = bullet->cShape->circle.getOutlineColor();
+
+        trail->cLifeSpan = std::make_shared<CLifeSpan>(bullet->cLifeSpan->remaining * 0.1f);
+        trail->cTransform = std::make_shared<CTransform>(bullet->cTransform->prevPos, sf::Vector2f(0.0f, 0.0f), 0.0f);
+        trail->cShape = std::make_shared<CShape>(bullet->cShape->radius, bullet->cShape->circle.getPointCount(), sf::Color(fillColor.r, fillColor.g, fillColor.b, 50), sf::Color(outLine.r, outLine.g, outLine.b, 50), bullet->cShape->circle.getOutlineThickness());
+    }
 }
 
 void Game::spawnStar() {
@@ -446,7 +473,7 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity) {
         sf::Vector2f vel = {speed * std::cos(angleRad * i), speed * std::sin(angleRad * i)};
 
         bullet->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, vel, 0.0f);
-        bullet->cShape = std::make_shared<CShape>(BULLET_RADIUS * 1.5f, BULLET_VERTICES, sf::Color(255, 0, 255), BULLET_OUTLINE_COLOR, BULLET_OUTLINE_THICKNESS);
+        bullet->cShape = std::make_shared<CShape>(BULLET_RADIUS * m_random.randfloat(1.0f, 1.5f), PLAYER_VERTICES, sf::Color(212, 131, 212), sf::Color(212, 131, 212), BULLET_OUTLINE_THICKNESS);
         bullet->cLifeSpan = std::make_shared<CLifeSpan>(BULLET_LIFESPAN * 5);
     }
 }

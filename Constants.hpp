@@ -41,3 +41,7 @@ const sf::Color HUD_FONT_COLOR = {190, 212, 85};
 
 const unsigned int START_TIMER_FONT_SIZE = 300;
 const sf::Color START_TIMER_FONT_COLOR = {190, 212, 85};
+
+const unsigned int NEW_HIGHSCORE_FONT_SIZE = 150;
+const unsigned int NEW_HIGHSCORE_LIFESPAN = 250;
+const sf::Color NEW_HIGHSCORE_FONT_COLOR = {190, 212, 85};

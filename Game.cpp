@@ -154,6 +154,10 @@ void Game::sCollision() {
                 m_score->cScore->score += enemy->cShape->circle.getPointCount();
                 m_score->cGlyph->text.setString("SCORE: " + std::to_string(m_score->cScore->score));
                 if(m_score->cScore->score > m_highScore->cScore->score) {
+                    if(m_brokeHighScore) {
+                        spawnNewHighScore();
+                        m_brokeHighScore = false;
+                    }
                     m_highScore->cScore->score = m_score->cScore->score;
                     m_highScore->cGlyph->text.setString("HIGH SCORE: " + std::to_string(m_highScore->cScore->score));
                 }
@@ -345,6 +349,19 @@ void Game::sRender() {
     }
 
     m_window.display();
+}
+
+void Game::spawnNewHighScore() {
+    auto score = m_entityManager.addEntity("Glyph"); 
+
+    score->cGlyph = std::make_shared<CGlyph>(m_font, "NEW HIGH SCORE!!", NEW_HIGHSCORE_FONT_SIZE, NEW_HIGHSCORE_FONT_COLOR);
+
+    sf::FloatRect bounds = score->cGlyph->text.getLocalBounds();
+    score->cGlyph->text.setOrigin(bounds.left + bounds.width / 2.0f, bounds.top + bounds.height / 2.0f);
+
+    score->cTransform = std::make_shared<CTransform>(sf::Vector2f(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
+
+    score->cLifeSpan = std::make_shared<CLifeSpan>(NEW_HIGHSCORE_LIFESPAN);
 }
 
 void Game::spawnStartTimer() {

@@ -24,6 +24,7 @@ private:
     bool m_running = true;
     bool m_paused = false;
     bool m_startTimer = true;
+    bool m_brokeHighScore = true;
 
     int m_startTimerTotal = 3;
     int m_startTimerRemaining = m_startTimerTotal;
@@ -41,6 +42,7 @@ private:
     void sRender();
     void sTrail();
 
+    void spawnNewHighScore();
     void spawnStartTimer();
     void spawnStar();
     void spawnScore();

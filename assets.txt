@@ -1,0 +1,11 @@
+Font  GoldenAge     ./Fonts/GoldenAge.ttf
+Font  GoldenAgeShad ./Fonts/GoldenAgeShad.ttf
+Font  Retron2000    ./Fonts/Retron2000.ttf
+Sound Boom          ./Sounds/boom.wav
+Sound Destroy       ./Sounds/destroy.wav
+Sound HighLife      ./Sounds/highlife.wav
+Sound MachineHit    ./Sounds/machine_hit.wav
+Sound PistolShoot   ./Sounds/pistol_shoot.wav
+Sound PlayerHit     ./Sounds/player_hit.wav
+Sound Shoot         ./Sounds/shoot.wav
+Sound ShotgunShoot  ./Sounds/shotgun_shoot.wav

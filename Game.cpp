@@ -11,9 +11,7 @@ Game::Game() {
     m_window.setPosition(sf::Vector2i(100, 5));
     m_window.setFramerateLimit(60);
 
-    if(!m_font.loadFromFile("./fonts/Golden Age Shad.ttf")) {
-        std::cerr << "Error loading font file!!" << std::endl;
-    }
+    m_assets.loadFromFile("./assets.txt");
 
     setUp();
 }
@@ -28,6 +26,8 @@ void Game::setUp() {
     spawnHighScore();
     spawnLives();
     spawnStartTimer();
+    m_assets.getSound("HighLife").play();
+    m_assets.getSound("HighLife").setLoop(true);
 }
 
 void Game::run() {
@@ -79,6 +79,7 @@ void Game::sUserInput() {
                 }
                 else if(event.mouseButton.button == sf::Mouse::Right) {
                     spawnSpecialWeapon(m_player);
+                    m_assets.getSound("ShotgunShoot").play();
                 }
                 break;
 
@@ -99,6 +100,7 @@ void Game::sMovement() {
     if(m_player->cInput->shoot) {
         sf::Vector2f mousePos = (sf::Vector2f)sf::Mouse::getPosition(m_window);
         spawnBullet(m_player, mousePos);
+        m_assets.getSound("Shoot").play();
         m_player->cInput->shoot = false;
     }
 
@@ -141,6 +143,7 @@ void Game::sCollision() {
         }
         else if(distance <= radii) {
             enemy->destroy();
+            m_assets.getSound("MachineHit").play();
             spawnSmallerEnemies(enemy);
         }
     }
@@ -218,6 +221,7 @@ void Game::sAnimation() {
     // PLAYER HIT EFFECT
     if(m_player->cInvincibility && m_player->cInvincibility->iFrames > 0) {
         m_player->cInvincibility->iFrames--;
+        m_assets.getSound("PlayerHit").play();
 
         // Flash effect: toggle between red and original color
         if (m_player->cInvincibility->iFrames % 10 < 5) {
@@ -354,7 +358,7 @@ void Game::sRender() {
 void Game::spawnNewHighScore() {
     auto score = m_entityManager.addEntity("Glyph"); 
 
-    score->cGlyph = std::make_shared<CGlyph>(m_font, "NEW HIGH SCORE!!", NEW_HIGHSCORE_FONT_SIZE, NEW_HIGHSCORE_FONT_COLOR);
+    score->cGlyph = std::make_shared<CGlyph>(m_assets.getFont("GoldenAgeShad"), "NEW HIGH SCORE!!", NEW_HIGHSCORE_FONT_SIZE, NEW_HIGHSCORE_FONT_COLOR);
 
     sf::FloatRect bounds = score->cGlyph->text.getLocalBounds();
     score->cGlyph->text.setOrigin(bounds.left + bounds.width / 2.0f, bounds.top + bounds.height / 2.0f);
@@ -367,7 +371,7 @@ void Game::spawnNewHighScore() {
 void Game::spawnStartTimer() {
     m_timer = m_entityManager.addEntity("Start Timer"); 
 
-    m_timer->cGlyph = std::make_shared<CGlyph>(m_font, std::to_string(m_startTimerRemaining), START_TIMER_FONT_SIZE, START_TIMER_FONT_COLOR);
+    m_timer->cGlyph = std::make_shared<CGlyph>(m_assets.getFont("GoldenAgeShad"), std::to_string(m_startTimerRemaining), START_TIMER_FONT_SIZE, START_TIMER_FONT_COLOR);
 
     sf::FloatRect bounds = m_timer->cGlyph->text.getLocalBounds();
     m_timer->cGlyph->text.setOrigin(bounds.left + bounds.width / 2.0f, bounds.top + bounds.height / 2.0f);
@@ -401,7 +405,7 @@ void Game::spawnScore() {
 
     m_score->cTransform = std::make_shared<CTransform>(sf::Vector2f(5.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
     m_score->cScore = std::make_shared<CScore>(0);
-    m_score->cGlyph = std::make_shared<CGlyph>(m_font, "SCORE: " + std::to_string(m_score->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
+    m_score->cGlyph = std::make_shared<CGlyph>(m_assets.getFont("GoldenAgeShad"), "SCORE: " + std::to_string(m_score->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
 }
 
 void Game::spawnHighScore() {
@@ -418,7 +422,7 @@ void Game::spawnHighScore() {
 
     m_highScore->cTransform = std::make_shared<CTransform>(sf::Vector2f(1290.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
     m_highScore->cScore = std::make_shared<CScore>(value);
-    m_highScore->cGlyph = std::make_shared<CGlyph>(m_font, "HIGH SCORE: " + std::to_string(m_highScore->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
+    m_highScore->cGlyph = std::make_shared<CGlyph>(m_assets.getFont("GoldenAgeShad"), "HIGH SCORE: " + std::to_string(m_highScore->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
 }
 
 void Game::setHighScore() {
@@ -436,7 +440,7 @@ void Game::spawnLives() {
 
     m_lives->cTransform = std::make_shared<CTransform>(sf::Vector2f(700.0f, 5.0f), sf::Vector2f(0.0f, 0.0f), 0.0f);
     m_lives->cScore = std::make_shared<CScore>(5);
-    m_lives->cGlyph = std::make_shared<CGlyph>(m_font, "LIVES: " + std::to_string(m_lives->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
+    m_lives->cGlyph = std::make_shared<CGlyph>(m_assets.getFont("GoldenAgeShad"), "LIVES: " + std::to_string(m_lives->cScore->score), HUD_FONT_SIZE, HUD_FONT_COLOR);
 }   
 
 void Game::spawnPlayer() {
@@ -532,7 +536,7 @@ void Game::spawnGlyph(std::shared_ptr<Entity> entity) {
 
         glyph->cTransform = std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
     
-        glyph->cGlyph = std::make_shared<CGlyph>(m_font, std::to_string(entity->cShape->circle.getPointCount()), entity->cShape->radius, entity->cShape->circle.getFillColor());
+        glyph->cGlyph = std::make_shared<CGlyph>(m_assets.getFont("GoldenAgeShad"), std::to_string(entity->cShape->circle.getPointCount()), entity->cShape->radius, entity->cShape->circle.getFillColor());
 
         glyph->cLifeSpan = std::make_shared<CLifeSpan>(SMALLER_ENEMY_LIFESPAN * 2);
     }

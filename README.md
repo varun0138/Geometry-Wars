@@ -1,7 +1,4 @@
 # Geometry Wars
-
-
-## Game Overview
 This game is a simplified Geometry Wars-inspired shooter where the player battles enemies in a confined space. The player can move, shoot, and use a special ability while facing off against multiple enemy types. The game is controlled using keyboard and mouse input, with an option to pause gameplay.
 
 ## Game Controls
@@ -11,9 +8,6 @@ This game is a simplified Geometry Wars-inspired shooter where the player battle
 - **Pause**: P key
 
 ## Demo
-
-Here’s a quick preview of the game:
-
 ![Game](Resources/Gifs/demo.gif)
 
 ## Building the Project
@@ -49,17 +43,18 @@ Here’s a quick preview of the game:
    SFML_LIB = C:/SFML-2.6.1/lib
 
    compile:
-      g++ -c *.cpp -std=c++17 -g -Wall -m64 -I ${SFML_INCLUDE} -DSFML_STATIC
+      g++ -m64 -std=c++17 -Wall -Wextra -Wpedantic -O3 -I$(SFML_INCLUDE) -DSFML_STATIC -c src/*.cpp 
 
    link:
-      g++ *.o -o main -L ${SFML_LIB}  -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lopengl32 -lfreetype -lwinmm -lgdi32 
+      g++ *.o -o main -L $(SFML_LIB) -lsfml-graphics-s -lsfml-window-s -lsfml-audio-s -lsfml-system-s -lfreetype -lvorbisenc -lvorbisfile -lvorbis -logg -lFLAC -lopenal32 -lopengl32 -lwinmm -lgdi32
 
    clean:
       del *.o *.exe
       
    run:
       ./main
+   ```
 5. **Compile the project**:
    ```
    make
-#
+   ```

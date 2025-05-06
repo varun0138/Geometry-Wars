@@ -3,25 +3,26 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Sound.hpp>
-#include <map>
+#include <unordered_map>
 #include <string>
 
 class AssetsManager {
 private:
-    std::map<std::string, sf::Font> m_fonts;
-    std::map<std::string, sf::SoundBuffer> m_soundBuffers;
-    std::map<std::string, sf::Sound> m_sounds;
+    enum class Type: unsigned char { FONT, SOUND };
+
+    std::unordered_map<std::string, sf::Font> m_fonts;
+    std::unordered_map<std::string, sf::SoundBuffer> m_soundBuffers;
+    std::unordered_map<std::string, sf::Sound> m_sounds;
+
+    void loadFont(const std::string& name, const std::string& path);
+    void loadSoundBuffer(const std::string& name, const std::string& path);
+    void loadSound(const std::string& name, const sf::SoundBuffer& buffer);
 
 public:
     AssetsManager();
 
-    void loadFromFile(const std::string& filePath);
-
-    void addFont(const std::string& name, const std::string& path);
-    void addSoundBuffer(const std::string& name, const std::string& path);
-    void addSound(const std::string& name, const sf::SoundBuffer& buffer);
+    void loadFromFile(const std::string& filepath);
 
     const sf::Font& getFont(const std::string& name) const;
-    const sf::SoundBuffer& getSoundBuffer(const std::string& name) const;
     sf::Sound& getSound(const std::string& name);
 };

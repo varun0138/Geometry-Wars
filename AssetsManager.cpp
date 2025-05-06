@@ -1,58 +1,60 @@
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 #include "AssetsManager.hpp"
 
 AssetsManager::AssetsManager() {}
 
-void AssetsManager::loadFromFile(const std::string& filePath) {
-    std::ifstream file(filePath);
-    if(!file) {
-        std::cerr << "File not loaded: " << filePath << std::endl;
-        return;
-    }
+void AssetsManager::loadFromFile(const std::string& filepath) {
+    std::ifstream file(filepath);
 
+    if(!file) { throw std::runtime_error("File Not Loaded: " + filepath); }
 
-    std::string type, name, path;
+    unsigned int type;
+    std::string name, path;
     while(!file.eof()) {
         file >> type >> name >> path;
 
-        if(type == "Font") {
-            addFont(name, path);
-        }
-        else if(type == "Sound") {
-            addSoundBuffer(name, path);
-            addSound(name, getSoundBuffer(name));
-        }
-        else {
-            std::cerr << "Type not found: " << type << std::endl;
+        switch(Type(type)) {
+            case Type::FONT: {
+                loadFont(name, path);
+                std::cout << "Font Loaded: " << path << std::endl;
+                break;
+            }
+                
+            case Type::SOUND: {
+                loadSoundBuffer(name, path);
+                loadSound(name, m_soundBuffers[name]);
+                std::cout << "Sound Loaded: " << path << std::endl;
+                break;
+            }
+
+            default:
+                break;
         }
     }
 
     file.close();
 }
 
-void AssetsManager::addFont(const std::string& name, const std::string& path) {
+void AssetsManager::loadFont(const std::string& name, const std::string& path) {
     sf::Font font;
     if(!font.loadFromFile(path)) {
-        std::cerr << "Font not loaded: " << path << std::endl;
-        return;
+        throw std::runtime_error("Font Not Loaded: "+ path);
     }
     m_fonts[name] = font;
-    std::cout << "Font loaded: " << path << std::endl;
 }
 
-void AssetsManager::addSoundBuffer(const std::string& name, const std::string& path) {
+void AssetsManager::loadSoundBuffer(const std::string& name, const std::string& path) {
     sf::SoundBuffer buffer;
     if(!buffer.loadFromFile(path)) {
-        std::cerr << "Sound Buffer not loaded: " << path << std::endl;
-        return;
+        throw std::runtime_error("Sound Not Loaded: "+ path);
     }
     m_soundBuffers[name] = buffer;
-    std::cout << "Sound Buffer loaded: " << path << std::endl;
 }
 
-void AssetsManager::addSound(const std::string& name, const sf::SoundBuffer& buffer) {
+void AssetsManager::loadSound(const std::string& name, const sf::SoundBuffer& buffer) {
     sf::Sound sound;
     sound.setBuffer(buffer);
     sound.setVolume(30.0f);
@@ -61,10 +63,6 @@ void AssetsManager::addSound(const std::string& name, const sf::SoundBuffer& buf
 
 const sf::Font& AssetsManager::getFont(const std::string& name) const {
     return m_fonts.at(name);
-}
-
-const sf::SoundBuffer& AssetsManager::getSoundBuffer(const std::string& name) const {
-    return m_soundBuffers.at(name);
 }
 
 sf::Sound& AssetsManager::getSound(const std::string& name) {
